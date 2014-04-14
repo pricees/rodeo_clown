@@ -39,7 +39,7 @@ module RodeoClown
         new_instances.each { |ec2| print_status(ec2) }
         sleep 5
       end
-      instances.each { |ec2| aws_elb.instances.register ec2 }
+      aws_elb.instances.register new_instances
 
       instances.each &:stop
 
@@ -48,7 +48,7 @@ module RodeoClown
         instances.each { |ec2| print_status(ec2) }
         sleep 5
       end
-      instances.each { |ec2| aws_elb.instances.deregister ec2 }
+      aws_elb.instances.deregister instances
     end
 
 
