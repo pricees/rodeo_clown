@@ -8,7 +8,12 @@ Grab an instance of your ELB
 elb = RodeoClown::ELB.by_name("my-elb")
 ```
 
-Rotate out all of the instances, with a new image
+Rotate new instances into load balancer
 ```ruby
 elb.instances.rotate
+```
+
+Rotate new instances into load balancer, with a new image
+```ruby
+elb.instances.rotate(image_id: "ami-1234567a")
 ```
