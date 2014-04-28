@@ -22,16 +22,16 @@ module RodeoClown
       filter_by_tag_options(filtered, options[:values], :tagged_values)
     end
 
-    def self.filter_by_tag_options(instances, options, method = :tagged_values)
+    def self.filter_by_tag_options(instances, options, filter = :tagged_values)
       return instances if options.nil? || options.empty?
 
       all = options.delete(:scope) == :all
       vals = options.delete(:values)
 
       if all
-        vals.inject(instances) { |i, value| i.send(method, value) }
+        vals.inject(instances) { |i, value| i.send(filter, value) }
       else
-        instances.send method, *vals
+        instances.send filter, *vals
       end
     end
   end
