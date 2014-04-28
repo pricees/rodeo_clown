@@ -1,6 +1,8 @@
 require "forwardable"
 module RodeoClown
   class ELB < Struct.new(:aws_elb)
+    TIMEOUT = 10
+
     extend Forwardable
       def_delegators :aws_elb, :availability_zones, :instances
 
@@ -30,6 +32,8 @@ module RodeoClown
         end
       end
 
+      wait_for_state(instances, "InService")
+
       cur_instances.each do |i|
         begin
           puts "...deregistering: #{i.id}"
@@ -37,6 +41,34 @@ module RodeoClown
         rescue AWS::ELB::Errors::InvalidInstance
           puts "Instance #{i.id} currently not registered to load balancer"
         end
+      end
+    end
+
+    #
+    # Wait for all the instances to become InService
+    #
+    def wait_for_state(instances, exp_state)
+
+      time = 0
+      all_good = false
+
+      loop do
+        all_good = instances.all? do |i|
+          state = i.elb_health[:state] 
+          puts "#{i.id}: #{state}"
+
+          exp_state == state
+        end
+
+        break if all_good || time > TIMEOUT
+
+        sleep 1
+        time += 1
+      end
+
+      # If timeout before all inservice, deregister and raise error
+      unless all_good
+        raise "Instances are out of service"
       end
     end
   end
