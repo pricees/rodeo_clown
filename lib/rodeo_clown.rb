@@ -12,7 +12,7 @@ module RodeoClown
     @credentials ||= 
       if ENV.key?("AWS_ACCESS_KEY") && ENV.key?("AWS_SECRET_ACCESS_KEY") 
         { access_key_id: ENV["AWS_ACCESS_KEY"],
-          secret_access_key_id: ENV["AWS_SECRET_ACCESS_KEY"], }
+          secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"], }
       elsif File.exists?(file = File.expand_path("~") + "/.rodeo_clown.yml")
         YAML.load_file(file)
       else
