@@ -6,11 +6,11 @@ require 'rodeo_clown/version'
 Gem::Specification.new do |spec|
   spec.name          = "rodeo_clown"
   spec.version       = RodeoClown::VERSION
-  spec.authors       = ["Ted Price"]
+  spec.authors       = ["Ted Price", "Stephen Korecky"]
   spec.email         = ["ted.price@gmail.com"]
   spec.summary       = %q{Tools to cycle AWS EC2 instances.}
   spec.description   = %q{Tools to cycle AWS EC2 isnstances.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/pricees/rodeo_clown/blob/master/README.md"
   spec.license       = "Cowboy Code"
 
   spec.files         = `git ls-files -z`.split("\x0")
