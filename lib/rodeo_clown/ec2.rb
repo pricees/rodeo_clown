@@ -31,7 +31,7 @@ module RodeoClown
       if all
         vals.inject(instances) { |i, value| i.send(method, value) }
       else
-        instances.tagged_values *vals
+        instances.send method, *vals
       end
     end
   end
