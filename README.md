@@ -1,3 +1,26 @@
+```
+              _
+            _( )_
+            (_ O _)
+              (_)  
+    _________/_    
+    \      / /    
+    )=====@=(    
+____/_________\____
+    | /^\ /^\ |    
+  _| \0/_\0/ |_  
+  (_  _ (_) _  _)  
+    \( \___/ )/    
+    \\\___///    
+  ,-._\\___//_,-.  
+  |* *`-._,-' * |  
+  | * * (_)* * *|  
+  |* _,-' `-.*  |  
+  `-'        `-'
+```
+
+
+
 rodeo_clown
 ===========
 
@@ -6,6 +29,10 @@ Gem to assist cycling AWS EC2 instance and images.
 Grab an instance of your ELB
 ```ruby
 elb = RodeoClown::ELB.by_name("my-elb")
+```
+Rotate instances by tag values
+```ruby
+elb.rotate("myapp_v1" => "myapp_v2")
 ```
 
 Rotate new instances into load balancer
