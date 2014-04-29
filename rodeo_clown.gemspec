@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = RodeoClown::VERSION
   spec.authors       = ["Ted Price", "Stephen Korecky"]
   spec.email         = ["ted.price@gmail.com"]
-  spec.summary       = %q{Tools to cycle AWS EC2 instances.}
-  spec.description   = %q{Tools to cycle AWS EC2 isnstances.}
+  spec.summary       = %q{Tools for AWS}
+  spec.description   = %q{Tools for AWS}
   spec.homepage      = "https://github.com/pricees/rodeo_clown/blob/master/README.md"
   spec.license       = "Cowboy Code"
 
@@ -18,6 +18,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
+  spec.add_runtime_dependency "aws-sdk", "~> 1.38"
+  spec.add_development_dependency "aws-sdk", "~> 1.38"
   spec.add_development_dependency "bundler", "~> 1.6"
   spec.add_development_dependency "rake"
 end
