@@ -1,7 +1,10 @@
 require "forwardable"
 module RodeoClown
   class ELB < Struct.new(:aws_elb)
-    TIMEOUT = 10
+
+    def timeout
+      @timeout ||= (ENV["TIMEOUT"] || 10).to_i
+    end
 
     extend Forwardable
       def_delegators :aws_elb, :availability_zones, :instances
@@ -60,7 +63,7 @@ module RodeoClown
           exp_state == state
         end
 
-        break if all_good || time > TIMEOUT
+        break if all_good || time > timeout
 
         sleep 1
         time += 1
