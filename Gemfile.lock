@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     rodeo_clown (0.0.1)
+      aws-sdk (~> 1.38)
 
 GEM
   remote: https://rubygems.org/
@@ -21,7 +22,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  aws-sdk
+  aws-sdk (~> 1.38)
   bundler (~> 1.6)
   rake
   rodeo_clown!
