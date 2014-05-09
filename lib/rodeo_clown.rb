@@ -23,6 +23,7 @@ end
 
 AWS.config RodeoClown.credentials # Street cred
 
+require_relative "rodeo_clown/deploy"
 require_relative "rodeo_clown/ec2"
 require_relative "rodeo_clown/elb"
 require_relative "rodeo_clown/ext/instance_collection.rb"
