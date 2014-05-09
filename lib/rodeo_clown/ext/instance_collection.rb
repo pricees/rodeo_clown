@@ -10,7 +10,7 @@ class AWS::ELB::InstanceCollection
 
   private
 
-  def wait_for_status(status, collection = self, interval = 5)
+  def wait_for_status(status, interval = 1, collection = self)
     until collection.all? { |ec2| ec2.status == status } 
       puts "Waiting for ALL instances to be #{status}..."
       collection.each { |ec2| print_status(ec2) }
@@ -29,15 +29,15 @@ class AWS::ELB::InstanceCollection
       create_instance(instance_attributes(instance).merge(options))
     end
 
-    wait_for_status(:running, new_instances)
+    wait_for_status(:running, 3, new_instances)
 
     new_instances
   end
 
-  def stop_current_instances(interval = 5)
+  def stop_current_instances(interval = 3)
     old_instances = map { |instance| stop_instance(instance) }
 
-    wait_for_status(:stopped)
+    wait_for_status(:stopped, interval, old_instance)
     old_instances 
   end
   
