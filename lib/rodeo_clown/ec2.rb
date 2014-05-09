@@ -1,6 +1,9 @@
 require "forwardable"
 module RodeoClown
   class EC2  < Struct.new(:ec2)
+
+     STATUS = %w[pending running shutting-down terminated stopping stopped]
+
 =begin
     instances = ec2.instances.create(
       :image_id => "ami-8c1fece5",
@@ -31,7 +34,7 @@ module RodeoClown
 
     def self.create_instance(options)
       created_instances = instances.create(options)
-      sleep 1 while instances.any? {|i| i.status == :pending }
+      instances.wait_for_status(:running)
       created_instances
     end
 
@@ -59,6 +62,26 @@ module RodeoClown
       else
         instances.send filter, *vals
       end
+    end
+
+    def reboot
+      ec2.reboot
+    end
+
+    def pending?
+      ec2.status == :pending
+    end
+
+    def running?
+      ec2.status == :running
+    end
+
+    def stopped?
+      ec2.status == :stopped
+    end
+
+    def terminated?
+      ec2.status == :terminated
     end
   end
 end
