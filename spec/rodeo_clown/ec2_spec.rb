@@ -46,5 +46,29 @@ describe RodeoClown::EC2 do
     end
   end
 
+  describe "#by_tags" do
+    let(:instance) do
+      double(tags: double(to_h: { "name" => "foo" }))
+    end
+
+    before do
+      RodeoClown::EC2.stub_chain(:instances, :tagged_values).
+        and_return [instance]
+    end
+
+    it "returns instances with match" do
+      res = RodeoClown::EC2.by_tags "name" => "foo"
+
+      expect(res).to include(instance)
+    end
+
+    it "returns empty array if no match" do
+      res = RodeoClown::EC2.by_tags "NAME" => "FOO"
+
+      expect(res).to be_empty
+    end
+
+  end
+
 
 end
