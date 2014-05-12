@@ -42,25 +42,20 @@ module RodeoClown
       new instances[name]
     end
 
+    # Filter by had of tag values.
+    # Keys and values as strings
+    # 
+    # Examples
+    #   RodeoClown::EC2.by_tags("app" => "rodeo", "version" = "2.1")
+    #   # => [ instance-1, instanc-2 ]
     #
-    # options: keys: [ foo... , scope: :all], [:values scope: any]
-    #
-    def self.filter_instances(options = {})
-      filtered = filter_by_tag_options(instances, options[:keys], :tagged)
-
-      filter_by_tag_options(filtered, options[:values], :tagged_values)
-    end
-
-    def self.filter_by_tag_options(instances, options, filter = :tagged_values)
+    # Returns an array of instances
+    def self.by_tags(options = {})
       return instances if options.nil? || options.empty?
 
-      all = options.delete(:scope) == :all
-      vals = options.delete(:values)
-
-      if all
-        vals.inject(instances) { |i, value| i.send(filter, value) }
-      else
-        instances.send filter, *vals
+      instances.tagged_values(options.values).select do |instance|
+        tags = instance.tags.to_h
+        (options.to_a - tags.to_a).empty?
       end
     end
 
