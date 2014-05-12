@@ -33,9 +33,9 @@ module RodeoClown
     end
 
     def self.create_instance(options)
-      created_instances = instances.create(options)
-      instances.wait_for_status(:running)
-      created_instances
+      new_instance = instances.create(options)
+      instances.wait_for_status(:running, 2, [*new_instance])
+      new_instance
     end
 
     def self.by_name(name)
