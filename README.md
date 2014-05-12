@@ -44,3 +44,8 @@ Rotate new instances into load balancer, with a new image
 ```ruby
 elb.instances.rotate(image_id: "ami-1234567a")
 ```
+
+Return array of ec2 instances by tags
+```ruby
+RodeoClown::EC2.by_tags "app" => "foo", "ver" => "1.2"
+```
