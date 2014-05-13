@@ -1,5 +1,5 @@
 module RodeoClown
-  class Deploy
+  module Deploy
 
     def self.on(instance)
       # NOTE: Should we check for array? If so, we should select #first
@@ -12,11 +12,14 @@ module RodeoClown
   private
 
   def self.before_deploy(instance)
+    true
   end
 
   def self.deploy(instance)
+    true
   end
 
   def self.after_deploy(instance)
+    true
   end
 end

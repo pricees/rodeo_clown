@@ -31,5 +31,4 @@ describe RodeoClown::Deploy do
       expect(res).to be_false
     end
   end
-
 end
