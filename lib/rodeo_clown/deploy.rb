@@ -15,8 +15,18 @@ module RodeoClown
     true
   end
 
-  def self.deploy(instance)
-    true
+  def self.deploy(instance, strategy, setup = true)
+    ENV["APP"] = "test.www.raise.com"
+    ENV["DOMAIN"] = instance.dns_name
+    ENV["BRANCH"] = "master"
+    
+    if setup
+      ARGV << "setup"
+      DeployStrategy.by_name(strategy).do
+      ARGV.delete "setup"
+    end
+    ARGV << "deploy"
+    DeployStrategy.by_name(strategy).do
   end
 
   def self.after_deploy(instance)
