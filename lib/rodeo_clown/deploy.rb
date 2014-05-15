@@ -1,16 +1,16 @@
 module RodeoClown
   module Deploy
 
-    def self.on(instance, strategy = 'mina', setup = true)
+    def self.on(options)
       # NOTE: Should we check for array? If so, we should select #first
-      res =   before_deploy(instance)
-      res &&= deploy(instance, strategy, setup)
-      res &&= after_deploy(instance)
+      res =   before_deploy(options)
+      res &&= deploy(options)
+      res &&= after_deploy(options)
     end
 
     private
 
-    def self.before_deploy(instance)
+    def self.before_deploy(options)
       true
     end
 
@@ -21,7 +21,7 @@ module RodeoClown
     # 
     #
     def self.deploy(options = {})
-      strategy = DeployStrategy.by_name(strategy)
+      strategy = DeployStrategy.by_name(options[:strategy])
       if options.key?(:env)
         options[:env].each { |k, v| ENV[k.to_s] = v }
       end
@@ -37,7 +37,7 @@ module RodeoClown
       strategy.do
     end
 
-    def self.after_deploy(instance)
+    def self.after_deploy(options)
       true
     end
   end
