@@ -1,6 +1,8 @@
 require 'mina'
 require 'rake'
 
+$self = self  # Keep variable holding global scope
+
 #
 # This file is stolen from "bin/mina" and the Mena directory.
 # Its more or less, a hack, for our immediate purposes
@@ -15,24 +17,7 @@ module RodeoClown
       def self.do
         $:.unshift File.expand_path('../../lib', __FILE__)
 
-=begin
-        # Intercept: if invoked as 'mina --help', don't let it pass through Rake, or else
-        # we'll see the Rake help screen. Redirect it to 'mina help'.
-        if ARGV.delete('--help') || ARGV.delete('-h')
-          ARGV << 'help'
-        end
-
-        if ARGV.delete('--version') || ARGV.delete('-V')
-          puts "Mina, version v#{Mina.version}"
-          exit
-        end
-
-        if ARGV.delete('--simulate') || ARGV.delete('-S')
-          ENV['simulate'] = '1'
-        end
-=end
-
-        scope = self
+        scope = $self
 
         Rake.application.instance_eval do
           standard_exception_handling do

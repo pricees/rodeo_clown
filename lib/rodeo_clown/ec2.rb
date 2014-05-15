@@ -78,5 +78,9 @@ module RodeoClown
     def terminated?
       ec2.status == :terminated
     end
+
+    def dns_name
+      ec2.dns_name
+    end
   end
 end
