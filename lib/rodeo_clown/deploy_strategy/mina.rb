@@ -34,8 +34,10 @@ module RodeoClown
         deploy
 
         ARGV[1] = first_argument
-        true
 
+        puts "Deployment finished.\t\t\t #{options.inspect}"
+
+        true
       end
 
       def self.deploy

@@ -2,9 +2,8 @@ require 'socket'
 require 'timeout'
 
 
-module RodeoClown
-
-  def self.is_port_open?(ip, port = 22)
+module IsPortOpen
+  def port_open?(ip, port = 22)
     begin
       Timeout::timeout(1) do
         begin

@@ -19,6 +19,10 @@ module RodeoClown
       new_instance
     end
 
+    def create_instance(options)
+      self.class.create_instance(options)
+    end
+
     def self.by_name(name)
       new instances[name]
     end
