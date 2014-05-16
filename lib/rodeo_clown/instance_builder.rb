@@ -20,7 +20,7 @@ module RodeoClown
       rc_tags = { "rc_created_by" => "Rodeo Clown #{RodeoClown::VERSION}",
         "rc_created_at" => Time.now }
 
-      [*instances].each {|i| i.tags.set(tags.merge((rc_tags)) }
+      [*instances].each {|i| i.tags.set(tags.merge(rc_tags)) }
     end
 
     def key_pair=(key_pair_name)
