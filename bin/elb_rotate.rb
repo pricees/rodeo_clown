@@ -34,9 +34,3 @@ end
 
 rc_elb = get_elb
 puts rc_elb.instances.map &:id
-
-
-#puts "rotating 'giftcards1' -> 'giftcards2'"
-#elb.rotate("giftcards1" => "giftcards2")
-
-#puts "done!"

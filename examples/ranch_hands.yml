@@ -1,0 +1,35 @@
+#
+# [env]:
+#   [role]:
+#     ..ALL AWS instance options may be set here... seee
+#     http://docs.aws.amazon.com/AWSRubySDK/latest/AWS/EC2/InstanceCollection.html for more info...)
+#     tags:
+#       key1: value1
+#       ...
+#      availability_zones:
+#      - us-east-1b
+#      ...
+#
+test:
+  www:
+    image_id: ami-ea13a422  # subject to change
+    instance_type: c3.2xlarge
+    count: 2
+    subnet: ""
+    block_device_mappings:
+    - device_name: "/dev/sda2"
+      ebs:
+        volume_size: 15, #GB
+        delete_on_termination: true
+    key_pair_name: my-key-pair
+    tags:
+      Name: "Ranch Hand 1"
+      Env:  "development, then probably production"
+    security_groups:
+    - my-sec-grp-1
+    - my-sec-grp-2
+    - my-dev-grp
+    availability_zones:
+    - us-east-1a
+    - us-east-1c
+    - us-east-1d

@@ -1,28 +1,9 @@
 require "forwardable"
 module RodeoClown
   class EC2  < Struct.new(:ec2)
+    include InstanceBuilder
 
      STATUS = %w[pending running shutting-down terminated stopping stopped]
-
-=begin
-    instances = ec2.instances.create(
-      :image_id => "ami-8c1fece5",
-      :count => 10)
-
-      sleep 1 while instances.any? {|i| i.status == :pending }
-    #  Specifying block device mappings
-
-      ec2.instances.create({
-        :image_id => "ami-8c1fece5",
-        :block_device_mappings => [{
-        :device_name => "/dev/sda2",
-        :ebs => {
-        :volume_size => 15, # 15 GiB
-        :delete_on_termination => true
-      }
-      }]
-    })
-=end
 
     def self.instances
       ec2.instances

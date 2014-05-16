@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require "./lib/rodeo_clown"
+
+
+if ARGV.empty?
+  puts "RACK_ENV=test lets_dance! /path/to/yml role"
+  exit 1 
+end
+
+env     = ENV["RACK_ENV"] ||= "development"
+role    = ARGV[1]
+options = YAML.load_file("./ranch_hands.yml")[env]
+if role
+  options = options[role]
+#else
+  #options = options[role]
+end
+
+rc = RodeoClown::EC2.new
+rc.from_options(options)
+instances = rc.build_instances { |cfg| RodeoClown::EC2.create_instance(cfg) }
+
+puts "Instances built"
