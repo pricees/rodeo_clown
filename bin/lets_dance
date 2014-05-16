@@ -11,14 +11,41 @@ end
 env     = ENV["RACK_ENV"] ||= "development"
 role    = ARGV[1]
 options = YAML.load_file("./ranch_hands.yml")[env]
+
 if role
   options = options[role]
 #else
   #options = options[role]
 end
 
+deployment = options.delete "deployment"
+
 rc = RodeoClown::EC2.new
 rc.from_options(options)
 instances = rc.build_instances { |cfg| RodeoClown::EC2.create_instance(cfg) }
 
 puts "Instances built"
+puts instances.map &:id
+
+instances.each do |instance|
+  host = instance.dns_name
+
+  until RodeoClown.is_port_open?(host)
+    puts "Knocking on #{host}'s ssh door..."
+    sleep 3
+  end
+
+  options = {
+    env: {
+      "DOMAIN" => host,
+      "APP"    => deployment["app"]
+    },
+    :setup   => true,
+    :strategy => "mina",
+  }
+  "Deploying on #{host}"
+  RodeoClown::Deploy.on(options)
+end
+
+
+puts "Apps Deploy"

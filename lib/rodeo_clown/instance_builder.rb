@@ -37,7 +37,7 @@ module RodeoClown
           [configs]
         end
 
-      ary_of_options.each do |options|
+      ary_of_options.map do |options|
         instances = yield options
         apply_tags(instances)
         instances

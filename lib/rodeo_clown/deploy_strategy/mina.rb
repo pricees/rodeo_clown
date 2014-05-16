@@ -1,7 +1,7 @@
 require 'mina'
 require 'rake'
 
-$self = self  # Keep variable holding global scope
+$main_scope = self  # Keep variable holding global scope
 
 #
 # This file is stolen from "bin/mina" and the Mena directory.
@@ -15,26 +15,33 @@ module RodeoClown
       #   :env -  Hash of environment variables to be merged
       #   :setup - Should run s
       #
+      # NOTE: This "first_argument" manipulation is a hack, wranglers!
       def self.do(options)
         if options.key?(:env)
           options[:env].each { |k, v| ENV[k.to_s] = v }
         end
 
+        first_argument = ARGV[1]
+
         if options[:setup]
-          ARGV << "setup"
+
+          ARGV[1] = "setup"
           deploy
 
-          ARGV.delete "setup"
         end
 
         ARGV << "deploy"
         deploy
+
+        ARGV[1] = first_argument
+        true
+
       end
 
       def self.deploy
         $:.unshift File.expand_path('../../lib', __FILE__)
 
-        scope = $self
+        scope = $main_scope
 
         Rake.application.instance_eval do
           standard_exception_handling do
