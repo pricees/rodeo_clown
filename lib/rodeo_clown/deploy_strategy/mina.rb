@@ -11,10 +11,27 @@ module RodeoClown
   module DeployStrategy
     class Mina
 
+      # :options - Hash of options for deploymentj
+      #   :env -  Hash of environment variables to be merged
+      #   :setup - Should run s
       #
-      # Command pattern
-      #
-      def self.do
+      def self.do(options)
+        if options.key?(:env)
+          options[:env].each { |k, v| ENV[k.to_s] = v }
+        end
+
+        if options[:setup]
+          ARGV << "setup"
+          deploy
+
+          ARGV.delete "setup"
+        end
+
+        ARGV << "deploy"
+        deploy
+      end
+
+      def self.deploy
         $:.unshift File.expand_path('../../lib', __FILE__)
 
         scope = $self
