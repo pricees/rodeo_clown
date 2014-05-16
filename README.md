@@ -52,6 +52,6 @@ RodeoClown::EC2.by_tags "app" => "foo", "ver" => "1.2"
 
 Build instances from YAML (see examples/ranch_hands.yml)
 ```
-  lets_dance! /path/to/ranch_hands.yml www
+  lets_dance /path/to/ranch_hands.yml www
 ```
 More to come!

@@ -18,7 +18,7 @@ module RodeoClown
 
     def apply_tags(instances)
       rc_tags = { "rc_created_by" => "Rodeo Clown #{RodeoClown::VERSION}",
-        "rc_created_at" => Time.now }
+        "rc_created_at" => Time.now.to_s }
 
       [*instances].each {|i| i.tags.set(tags.merge(rc_tags)) }
     end
