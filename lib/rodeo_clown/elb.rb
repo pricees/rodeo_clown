@@ -3,7 +3,7 @@ module RodeoClown
   class ELB < Struct.new(:elb)
 
     def timeout
-      @timeout ||= (ENV["TIMEOUT"] || 10).to_i
+      @timeout ||= (ENV["TIMEOUT"] || 60).to_i
     end
 
     extend Forwardable
