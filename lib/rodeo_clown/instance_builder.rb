@@ -8,10 +8,10 @@ module RodeoClown
     def many_from_options(options)
       options = options.symbolize_keys # Create a duplicate
 
-      @key_pair_name = options.delete(:key_pair_name)
-      @tags          = options.delete(:tags)
-      @options       = options
+      @key_pair_name      = options.delete(:key_pair_name)
+      @tags               = options.delete(:tags)
       @availability_zones = options.delete(:availability_zones) || []
+      @options            = options
     end
 
     def key_pair=(key_pair_name)
@@ -28,13 +28,12 @@ module RodeoClown
       end
     end
 
-    def build_instances(num = false)
-      if num
-        build_options = self.build_options.first(num)
-      end
+    def build_instances(num = nil)
+      build_args = self.build_options
+      build_args = build_args.first(num) if num
 
-      build_options.map do |options|
-        instances = create_instance options
+      build_args.map do |args|
+        instances = create_instance args
         apply_tags(instances)
         instances
       end.flatten
@@ -43,8 +42,10 @@ module RodeoClown
     private
 
     def apply_tags(instances)
-      rc_tags = { "rc_created_by" => "Rodeo Clown #{RodeoClown::VERSION}",
-        "rc_created_at" => Time.now.to_s }
+      rc_tags = { 
+        "rc_created_by" => "Rodeo Clown #{RodeoClown::VERSION}",
+        "rc_created_at" => Time.now.to_s 
+      }
 
       [*instances].each {|i| i.tags.set(tags.merge(rc_tags)) }
     end

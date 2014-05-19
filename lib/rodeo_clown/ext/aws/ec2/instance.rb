@@ -1,5 +1,5 @@
 class AWS::EC2::Instance
-  IsPortOpen
+  include IsPortOpen
 
   def port_open?(port)
     super(dns_name, port)

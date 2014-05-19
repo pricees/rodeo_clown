@@ -8,12 +8,7 @@ def print_instructions
   exit 1 
 end
 
-def deploy_to(instances)
-  unless deployment["deploy"]
-    puts "Skipping deployment"
-    return
-  end
-
+def deploy_to(instances, deploy_opts)
   instances.each do |instance|
 
     puts "Waiting for ssh"
@@ -23,47 +18,74 @@ def deploy_to(instances)
     options = {
       env: {
         "DOMAIN" => instance.dns_name,
-        "APP"    => deployment["app"]
+        "APP"    => deploy_opts["app"],
       },
-      :setup   => deployment["setup"],
+      :setup   => deploy_opts["setup"],
       :strategy => "mina",
     }
     RodeoClown::Deploy.on(options)
   end
 end
 
+def build_instances(options, count = nil)
+  if count
+    options = options.merge(count: count)
+  end
+
+  rc = RodeoClown::EC2.new
+  rc.many_from_options(options)
+  rc.build_instances(count) # Build one
+end
+
+def create_images(instances)
+  images = instances.map do |instance|
+    image_name = "whats_in_a_name#{instances.first.id}"
+    adjuster   = 0
+    begin
+      instance.create_image("#{adjuster}#{image_name}")
+    rescue AWS::EC2::Errors::InvalidAMIName::Duplicate
+      adjuster += 1
+      print "Error with image name, attempting: #{adjuster}#{image_name}"
+      retry
+    end
+  end
+  puts "waiting for images to become available"
+  while images.any? { |i| i.state != :available }
+    print "."
+    sleep 1
+  end
+
+  images
+end
+
+########
+########
+########
+########
+
 begin
   env     = ENV["RACK_ENV"] ||= "development"
   role    = ARGV[1] 
   options = YAML.load_file("./ranch_hands.yml")[env][role]
-  deployment = options.delete "deployment"
+  deploy_opts = options.delete "deployment"
 rescue 
   print_instructions
 end
 
-
-
-
-
-rc = RodeoClown::EC2.new
-
 # Build the first one
-rc.many_from_options(options.merge(count: 1))
-instances = rc.build_instances(1) # Build one
-# deploy_to instances Deploy!
+#instances = build_instances(options, 1)
 puts "Primary Instance built"
-image = instances.first.create_image("whats_in_a_name#{instances.first.id}")
-puts "Primary Image build #{image.id}"
+puts instances.map(&:id).join(', ') rescue ''
+
+#deploy_to(instances, deploy_opts)
+
+instances = RodeoClown::EC2.by_name 'i-5bbf0808'
+images = create_images(instances)
+puts "Primary Image build #{images.map(&:id).join(", ") rescue 'n/a'}"
 
 puts "Ready to build more images? Hit any key"
-options["image_id"] = image.id
+instances = build_instances(options.merge("image_id" => images.first.id))
 
-rc.many_from_options(options)
+puts instances.map(&:id).join(', ') rescue ''
 
-# Build first
-instances = rc.build_instances
-
-puts instances.map &:id
-
-
-puts "Apps Deploy"
+puts "Apps Deployed"
