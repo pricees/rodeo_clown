@@ -24,13 +24,11 @@ module RodeoClown
         first_argument = ARGV[1]
 
         if options[:setup]
-
           ARGV[1] = "setup"
           deploy
-
         end
 
-        ARGV << "deploy"
+        ARGV[1] =  "deploy"
         deploy
 
         ARGV[1] = first_argument

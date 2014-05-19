@@ -1,30 +1,13 @@
 #!/usr/bin/env ruby
 
+require "pry"
 require "./lib/rodeo_clown"
+$main_scope = self  # Keep variable holding global scope
 
 
 def print_instructions
   puts "RACK_ENV=test lets_dance! /path/to/yml role"
   exit 1 
-end
-
-def deploy_to(instances, deploy_opts)
-  instances.each do |instance|
-
-    puts "Waiting for ssh"
-    print "." until instance.ssh_open?
-    puts
-
-    options = {
-      env: {
-        "DOMAIN" => instance.dns_name,
-        "APP"    => deploy_opts["app"],
-      },
-      :setup   => deploy_opts["setup"],
-      :strategy => "mina",
-    }
-    RodeoClown::Deploy.on(options)
-  end
 end
 
 def build_instances(options, count = nil)
@@ -37,9 +20,9 @@ def build_instances(options, count = nil)
   rc.build_instances(count) # Build one
 end
 
-def create_images(instances)
+def create_images(instances, prefix)
   images = instances.map do |instance|
-    image_name = "whats_in_a_name#{instances.first.id}"
+    image_name = [ Date.today.strftime("%Y-%m-%d"), prefix ].join("_")
     adjuster   = 0
     begin
       instance.create_image("#{adjuster}#{image_name}")
@@ -72,20 +55,50 @@ rescue
   print_instructions
 end
 
+# 5 Hookup-server
+def register(app_name, elb_name)
+  instance = RodeoClown::EC2.by_tags "Name" => app_name
+
+  elb = RodeoClown::ELB.by_name(elb_name)
+  elb.register_and_wait instance
+end
+
 # Build the first one
-#instances = build_instances(options, 1)
+instances = build_instances(options, 1)
 puts "Primary Instance built"
-puts instances.map(&:id).join(', ') rescue ''
 
-#deploy_to(instances, deploy_opts)
+# Deploy
+puts "Primary Instance built"
+instances.each do |instance|
+  puts "Waiting for ssh"
+  print "." until instance.ssh_open?
+  puts
 
-instances = RodeoClown::EC2.by_name 'i-5bbf0808'
-images = create_images(instances)
-puts "Primary Image build #{images.map(&:id).join(", ") rescue 'n/a'}"
+  RodeoClown::Deploy.on(
+    env: { "DOMAIN" => instance.dns_name, "APP" => deploy_opts["app"], },
+    setup: deploy_opts["setup"],
+    strategy: "mina",
+  )
+end
 
-puts "Ready to build more images? Hit any key"
-instances = build_instances(options.merge("image_id" => images.first.id))
+instance.each &:reboot
+elb_name    = "sandbox-elb"
+app_name    = "new-instance"
+register(app_name, elb_name)
 
-puts instances.map(&:id).join(', ') rescue ''
+puts "************************\n" * 5
+puts "Go check your elb #{elb} or instance to see if its working"
+puts "Press any key to start image creation process"
+puts "************************\n" * 5
+
+# Create images
+images = create_images(instances, deploy_opts["app"])
+
+# Create instance from image
+new_instances = build_instances(options.merge("image_id" => images.first.id))
+
+elb_name    = "sandbox-elb"
+app_name    = options["tags"]["Name"]
+register(app_name, elb_name)
 
 puts "Apps Deployed"
