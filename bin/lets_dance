@@ -68,7 +68,6 @@ instances = build_instances(options, 1)
 puts "Primary Instance built"
 
 # Deploy
-puts "Primary Instance built"
 instances.each do |instance|
   puts "Waiting for ssh"
   print "." until instance.ssh_open?
@@ -81,7 +80,7 @@ instances.each do |instance|
   )
 end
 
-instance.each &:reboot
+instances.each &:reboot
 elb_name    = "sandbox-elb"
 app_name    = "new-instance"
 register(app_name, elb_name)
