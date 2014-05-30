@@ -10,41 +10,75 @@ def print_instructions
   exit 1 
 end
 
-def build_instances(options, count = nil)
-  if count
-    options = options.merge(count: count)
-  end
-
+# Build out instances based on options based
+#
+# options - AWS options to customize instance build
+# template - Build a single instance to be used as a template (:template => true)
+#
+# Returns instances
+def build_instances(options, template = nil)
   rc = RodeoClown::EC2.new
   rc.many_from_options(options)
-  rc.build_instances(count) # Build one
+  rc.build_instances(template) 
 end
 
+#
+# Generate a name based on the date, a prefix such as an app name, and an
+# adjuster in case of name collisions
+#
+# Returns a string
+def generate_name(prefix, adjuster)
+  "#{Date.today.strftime("%Y-%m-%d")}_#{prefix}.#{adjuster}"
+end
+
+#
+# Create images based off of instances
+#
 def create_images(instances, prefix)
+  adjuster = 0
   images = instances.map do |instance|
-    image_name = [ Date.today.strftime("%Y-%m-%d"), prefix ].join("_")
-    adjuster   = 0
+    name = nil
     begin
-      instance.create_image("#{adjuster}#{image_name}")
+      name = generate_name(prefix, adjuster)
+      instance.create_image(name)
     rescue AWS::EC2::Errors::InvalidAMIName::Duplicate
       adjuster += 1
-      print "Error with image name, attempting: #{adjuster}#{image_name}"
+      print "Error with image name : #{name}"
       retry
     end
   end
-  puts "waiting for images to become available"
-  while images.any? { |i| i.state != :available }
-    print "."
-    sleep 1
-  end
 
-  images
+  puts "waiting for images to become available"
+  images.wait_for_state(:available)
 end
 
-########
-########
-########
-########
+
+# 5 Hookup-server
+def register(app_name, elb_name)
+  elb = RodeoClown::ELB.by_name(elb_name)
+
+  instances = RodeoClown::EC2.
+    by_tags("Name" => app_name).
+    select { |x| x.status == :running }
+
+  elb.register_and_wait instances
+rescue => bang  # Timeout
+  puts bang
+end
+
+def deploy(instances, deploy_opts)
+  instances.each do |instance|
+    puts "Waiting for ssh"
+    print "." until instance.ssh_open?
+    puts
+
+    RodeoClown::Deploy.on(
+      env: { "DOMAIN" => instance.dns_name, "APP" => deploy_opts["app"], },
+      setup: deploy_opts["setup"],
+      strategy: "mina",
+    )
+  end
+end
 
 begin
   role    = ARGV[1] 
@@ -57,59 +91,29 @@ begin
   options = YAML.load_file("./ranch_hands.yml")[env][role]
   deploy_opts = options.delete "deployment"
 
-  elbs = options.delete "elbs"
-end
-
-# 5 Hookup-server
-def register(app_name, elb_name)
-  instance = RodeoClown::EC2.by_tags "Name" => app_name
-
-  elb = RodeoClown::ELB.by_name(elb_name)
-  elb.register_and_wait instance
+  elbs      = options.delete "elbs"
+  elb_name  = elbs.first
+  app_name  = options["tags"]["Name"]
 end
 
 # Build the first one
-instances = build_instances(options, 1)
-puts "Primary Instance built"
+instances = build_instances(options, :template)
 
 # Deploy
-instances.each do |instance|
-  puts "Waiting for ssh"
-  print "." until instance.ssh_open?
-  puts
+#deploy(instances, deploy_opts)
 
-  RodeoClown::Deploy.on(
-    env: { "DOMAIN" => instance.dns_name, "APP" => deploy_opts["app"], },
-    setup: deploy_opts["setup"],
-    strategy: "mina",
-  )
-end
-
+# Reboot
 instances.each &:reboot
-elb_name    = elbs.first
-app_name    = options["tags"]["Name"]
-
-begin
-  register(app_name, elb_name)
-rescue => bang
-  puts bang
-end
-
-puts "************************\n" * 5
-puts "Go check your elb #{elb_name} or instance to see if its working"
-puts "Press any key to start image creation process"
-puts "************************\n" * 5
 
 # Create images
 images = create_images(instances, deploy_opts["app"])
 
-# Create instance from image
+# Create instances from image
 new_instances = build_instances(options.merge("image_id" => images.first.id))
 
-begin
-  register(app_name, elb_name)
-rescue => bang
-  puts bang
-end
+# Destroy original instances
+instances.each &:stop
+
+register(app_name, elb_name)
 
 puts "Apps Deployed"
