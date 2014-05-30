@@ -100,7 +100,7 @@ end
 instances = build_instances(options, :template)
 
 # Deploy
-#deploy(instances, deploy_opts)
+deploy(instances, deploy_opts)
 
 # Reboot
 instances.each &:reboot
