@@ -4,11 +4,13 @@ ENV["RACK_ENV"] ||= "development"
 
 require "pry"
 require "./lib/rodeo_clown"
+
+RodeoClown.env = ENV["RACK_ENV"]
 $main_scope = self  # Keep variable holding global scope
 
 
 def print_instructions
-  puts "RACK_ENV=test lets_dance! /path/to/yml role"
+  puts "RACK_ENV=[test] lets_dance! /path/to/yml role"
   exit 1 
 end
 
@@ -49,7 +51,6 @@ end
 ########
 
 begin
-  env     = ENV["RACK_ENV"]
   role    = ARGV[1] 
 
   if role.nil?
@@ -57,7 +58,7 @@ begin
     exit
   end
 
-  options = YAML.load_file("./ranch_hands.yml")[env][role]
+  options = YAML.load_file("./ranch_hands.yml")[RodeoClown.env][role]
   deploy_opts = options.delete "deployment"
 
   elbs = options.delete "elbs"

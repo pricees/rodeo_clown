@@ -2,6 +2,9 @@ require_relative "rodeo_clown/version"
 require "aws-sdk"
 
 module RodeoClown
+  class << self
+    attr_accessor :env
+  end
 
   def self.configs
     @configs ||= 
@@ -11,7 +14,7 @@ module RodeoClown
         YAML.load_file(file)
       else
         {}
-      end
+      end[env]
   end
   # 
   # Set aws credentials as environment variables
