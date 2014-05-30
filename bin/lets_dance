@@ -6,7 +6,6 @@ require "pry"
 require "./lib/rodeo_clown"
 
 RodeoClown.env = ENV["RACK_ENV"]
-$main_scope = self  # Keep variable holding global scope
 
 
 def print_instructions
