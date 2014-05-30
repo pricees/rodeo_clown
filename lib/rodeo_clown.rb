@@ -2,11 +2,8 @@ require_relative "rodeo_clown/version"
 require "aws-sdk"
 
 module RodeoClown
-  class << self
-    attr_accessor :env
-  end
 
-  def self.configs
+  def self.configs(env = ENV["RACK_ENV"] || "development")
     @configs ||= 
       if File.exists?(file = File.expand_path(".") + "/.rodeo_clown.yml")
         YAML.load_file(file)

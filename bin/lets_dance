@@ -1,12 +1,9 @@
 #!/usr/bin/env ruby
 
-ENV["RACK_ENV"] ||= "development"
+env = ENV["RACK_ENV"] ||= "development"
 
 require "pry"
 require "./lib/rodeo_clown"
-
-RodeoClown.env = ENV["RACK_ENV"]
-
 
 def print_instructions
   puts "RACK_ENV=[test] lets_dance! /path/to/yml role"
@@ -57,7 +54,7 @@ begin
     exit
   end
 
-  options = YAML.load_file("./ranch_hands.yml")[RodeoClown.env][role]
+  options = YAML.load_file("./ranch_hands.yml")[env][role]
   deploy_opts = options.delete "deployment"
 
   elbs = options.delete "elbs"
@@ -91,10 +88,15 @@ end
 instances.each &:reboot
 elb_name    = elbs.first
 app_name    = options["tags"]["Name"]
-register(app_name, elb_name)
+
+begin
+  register(app_name, elb_name)
+rescue => bang
+  puts bang
+end
 
 puts "************************\n" * 5
-puts "Go check your elb #{elb} or instance to see if its working"
+puts "Go check your elb #{elb_name} or instance to see if its working"
 puts "Press any key to start image creation process"
 puts "************************\n" * 5
 
@@ -104,6 +106,10 @@ images = create_images(instances, deploy_opts["app"])
 # Create instance from image
 new_instances = build_instances(options.merge("image_id" => images.first.id))
 
-register(app_name, elb_name)
+begin
+  register(app_name, elb_name)
+rescue => bang
+  puts bang
+end
 
 puts "Apps Deployed"
