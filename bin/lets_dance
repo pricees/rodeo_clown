@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+ENV["RACK_ENV"] ||= "development"
+
 require "pry"
 require "./lib/rodeo_clown"
 $main_scope = self  # Keep variable holding global scope
@@ -47,12 +49,18 @@ end
 ########
 
 begin
-  env     = ENV["RACK_ENV"] ||= "development"
+  env     = ENV["RACK_ENV"]
   role    = ARGV[1] 
+
+  if role.nil?
+    print_instructions
+    exit
+  end
+
   options = YAML.load_file("./ranch_hands.yml")[env][role]
   deploy_opts = options.delete "deployment"
-rescue 
-  print_instructions
+
+  elbs = options.delete "elbs"
 end
 
 # 5 Hookup-server
@@ -81,8 +89,8 @@ instances.each do |instance|
 end
 
 instances.each &:reboot
-elb_name    = "sandbox-elb"
-app_name    = "new-instance"
+elb_name    = elbs.first
+app_name    = options["tags"]["Name"]
 register(app_name, elb_name)
 
 puts "************************\n" * 5
@@ -96,8 +104,6 @@ images = create_images(instances, deploy_opts["app"])
 # Create instance from image
 new_instances = build_instances(options.merge("image_id" => images.first.id))
 
-elb_name    = "sandbox-elb"
-app_name    = options["tags"]["Name"]
 register(app_name, elb_name)
 
 puts "Apps Deployed"
