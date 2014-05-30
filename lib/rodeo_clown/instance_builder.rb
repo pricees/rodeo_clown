@@ -28,9 +28,16 @@ module RodeoClown
       end
     end
 
-    def build_instances(num = nil)
-      build_args = self.build_options
-      build_args = build_args.first(num) if num
+    # Build instances using build options
+    #
+    # if :template is passed, only build on, used as a template for a new image
+    def build_instances(template = nil)
+      build_args =
+        if template == :template
+          [build_options.first.merge(count: 1)]
+        else
+          build_options
+        end
 
       build_args.map do |args|
         instances = create_instance args
