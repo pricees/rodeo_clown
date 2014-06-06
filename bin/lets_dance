@@ -6,7 +6,7 @@ require "pry"
 require "./lib/rodeo_clown"
 
 def print_instructions
-  puts "RACK_ENV=[test] lets_dance! /path/to/yml role"
+  puts "RACK_ENV=[test] lets_dance /path/to/yml role"
   exit 1 
 end
 
