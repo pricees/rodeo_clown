@@ -81,14 +81,15 @@ def deploy(instances, deploy_opts)
 end
 
 begin
-  role    = ARGV[1] 
+  path_to_ranch_hands = ARG[0]
+  role                = ARGV[1] 
 
   if role.nil?
     print_instructions
     exit
   end
 
-  options = YAML.load_file("./ranch_hands.yml")[env][role]
+  options = YAML.load_file(path_to_ranch_hands)[env][role]
   deploy_opts = options.delete "deployment"
 
   elbs      = options.delete "elbs"
