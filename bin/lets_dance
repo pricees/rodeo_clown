@@ -81,7 +81,7 @@ def deploy(instances, deploy_opts)
 end
 
 begin
-  path_to_ranch_hands = ARG[0]
+  path_to_ranch_hands = ARGV[0]
   role                = ARGV[1] 
 
   if role.nil?
