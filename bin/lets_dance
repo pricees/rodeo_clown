@@ -3,7 +3,7 @@
 env = ENV["RACK_ENV"] ||= "development"
 
 require "pry"
-require "./lib/rodeo_clown"
+require "rodeo_clown"
 
 def print_instructions
   puts "RACK_ENV=[test] lets_dance /path/to/yml role"
