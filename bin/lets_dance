@@ -3,7 +3,7 @@
 env = ENV["RACK_ENV"] ||= "development"
 
 require "pry"
-require "./lib/rodeo_clown"
+require "rodeo_clown"
 
 def print_instructions
   puts "RACK_ENV=[test] lets_dance /path/to/yml role"
@@ -96,6 +96,8 @@ begin
   elb_name  = elbs.first
   app_name  = options["tags"]["Name"]
 end
+
+RodeoClown::S3.get_config_files
 
 # Build the first one
 instances = build_instances(options, :template)
