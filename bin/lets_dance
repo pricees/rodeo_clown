@@ -97,6 +97,8 @@ begin
   app_name  = options["tags"]["Name"]
 end
 
+RodeoClown::S3.get_config_files
+
 # Build the first one
 instances = build_instances(options, :template)
 
